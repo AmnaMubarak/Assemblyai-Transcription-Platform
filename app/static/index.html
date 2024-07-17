@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Speech to Text</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            color: #007BFF;
+        }
+
+        form {
+            margin-bottom: 1rem;
+        }
+
+        input[type="file"] {
+            margin-bottom: 1rem;
+            padding: 10px;
+            width: calc(100% - 20px);
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.5rem 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 1rem;
+            font-size: 1.2rem;
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        #convert-btn, #download-btn {
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+            transition: background-color 0.3s ease;
+        }
+
+        #convert-btn:hover, #download-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Speech to Text</h1>
+        <form id="upload-form">
+            <label for="audio-file">Upload an audio file:</label>
+            <br><br>
+            <input type="file" id="audio-file" name="file" accept="audio/*" required>
+            <button type="submit">Upload</button>
+        </form>
+        <button id="convert-btn">Convert Audio to Text</button>
+        <div id="result"></div>
+        <a id="download-btn" download="transcription.txt">Download Text</a>
+    </div>
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('file', document.getElementById('audio-file').files[0]);
+    
+            try {
+                const response = await fetch('/audio/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                if (!response.ok) {
+                    throw new Error('File upload failed');
+                }
+    
+                const result = await response.json();
+                if (result.message === "File uploaded successfully") {
+                    document.getElementById('convert-btn').style.display = 'block';
+                } else {
+                    throw new Error('File upload success message not received');
+                }
+            } catch (error) {
+                console.error('File upload error:', error);
+                // Handle error display or messaging here
+            }
+        });
+        const result = await response.json();
+        console.log(result); // Check console for response from backend
+        document.getElementById('convert-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/audio/convert', {
+                    method: 'POST'
+                });
+    
+                if (!response.ok) {
+                    throw new Error('Conversion request failed');
+                }
+    
+                const result = await response.json();
+                if (result.text) {
+                    document.getElementById('result').innerText = result.text;
+                    document.getElementById('download-btn').style.display = 'block';
+                } else {
+                    throw new Error('Text conversion result not received');
+                }
+            } catch (error) {
+                console.error('Conversion error:', error);
+                // Handle error display or messaging here
+            }
+        });
+    
+        document.getElementById('download-btn').addEventListener('click', async (event) => {
+            event.preventDefault();
+            try {
+                const response = await fetch('/audio/download');
+    
+                if (!response.ok) {
+                    throw new Error('Download request failed');
+                }
+    
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = 'transcription.txt';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Download error:', error);
+                // Handle error display or messaging here
+            }
+        });
+    </script>
+    
+
+</body>
+</html>
