@@ -1,0 +1,48 @@
+# Speech to Text Conversion Service
+
+This project is a web-based application that allows users to upload audio files and convert them into text. It utilizes FastAPI for the backend and a simple HTML/CSS/JavaScript frontend for user interaction.
+
+## Features
+
+- **Audio File Upload**: Users can upload audio files of various formats for transcription.
+- **Text Conversion**: Uploaded audio files are processed and converted into text.
+- **Download Transcription**: Users can download the transcribed text as a `.txt` file.
+
+## Technology Stack
+
+- **Backend**: FastAPI
+- **Frontend**: HTML, CSS, JavaScript
+- **Deployment**: The application is designed to be deployed on servers that support Python applications.
+
+
+## Setup and Installation
+
+1. **Clone the repository**:
+   - `git clone <repository-url>`
+   - `cd <repository-name>`
+
+2. **Create and activate a virtual environment**:
+   - `python -m venv venv`
+   - For Windows: `venv\Scripts\activate`
+   - For Unix or MacOS: `source venv/bin/activate`
+
+3. **Install dependencies**:
+   - `pip install -r requirements.txt`
+
+4. **Start the FastAPI server**:
+   - `uvicorn app.main:app --reload`
+   - The application will be available at `http://127.0.0.1:8000`.
+
+## Usage
+
+- Navigate to `http://127.0.0.1:8000` in your web browser.
+- Upload an audio file using the provided form.
+- Click on "Convert Audio to Text" to process the file.
+- Once the conversion is complete, the text will be displayed on the page.
+- You can download the transcription by clicking on the "Download Text" link.
+
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
