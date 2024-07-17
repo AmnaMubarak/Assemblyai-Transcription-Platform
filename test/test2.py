@@ -12,7 +12,7 @@ import assemblyai as aai
 # URL of the file to transcribe
 FILE_URL = "C:\\Users\\ESHOP\\Documents\\Share Mobility\\speech-to-text\\test_audio.mp3"
 
-aai.settings.api_key = "cbfff14c51c5456a9d599939e886a7e6"
+aai.settings.api_key = "Your_API_Key"
 transcriber = aai.Transcriber()
 config = aai.TranscriptionConfig(
   speech_model=aai.SpeechModel.best,
