@@ -4,13 +4,21 @@ import assemblyai as aai
 from pydantic import BaseModel
 from pathlib import Path
 from schema.transcriptions import TranscriptionConfig
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Access the API key
+api_key = os.getenv("api_key")
 
 
 app = FastAPI()  # Assuming you have an app instance
 router = APIRouter()
 
 # Replace with your AssemblyAI API key
-aai.settings.api_key = "cbfff14c51c5456a9d599939e886a7e6"
+aai.settings.api_key = api_key
 
 class FileStorage:
     def __init__(self):
