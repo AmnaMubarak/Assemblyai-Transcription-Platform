@@ -72,10 +72,11 @@ async def convert_audio(storage: FileStorage = Depends(get_file_storage)):
     response = transcriber.transcribe(storage.file_path)
     
     if response.status == 'error':
-        return JSONResponse(content={"message": response.error}, status_code=500)
+       return JSONResponse(content={"message": response.error}, status_code=500)
     else:
         storage.transcribed_text = "\n".join([f"Speaker {utt.speaker}: {utt.text}" for utt in response.utterances])
-        return JSONResponse(content={"text": storage.transcribed_text})
+    # Instead of returning the transcript, return a success message
+    return JSONResponse(content={"message": "Transcription successful. Please download the transcript."})
 
 @router.get("/download")
 async def download_text(storage: FileStorage = Depends(get_file_storage)):

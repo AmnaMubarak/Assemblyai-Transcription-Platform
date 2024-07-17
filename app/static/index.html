@@ -103,9 +103,9 @@
     
             try {
                 const response = await fetch('/audio/upload', {
-                    method: 'POST',
-                    body: formData
-                });
+    method: 'POST',
+    body: formData
+});
     
                 if (!response.ok) {
                     throw new Error('File upload failed');
@@ -122,8 +122,7 @@
                 // Handle error display or messaging here
             }
         });
-        const result = await response.json();
-        console.log(result); // Check console for response from backend
+    
         document.getElementById('convert-btn').addEventListener('click', async () => {
             try {
                 const response = await fetch('/audio/convert', {
