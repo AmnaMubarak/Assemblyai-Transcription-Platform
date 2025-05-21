@@ -3,159 +3,465 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Speech to Text</title>
+    <title>Speech to Text Converter</title>
     <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #6b8cae;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            background-color: #f4f4f4;
+            min-height: 100vh;
+            background-color: #f4f7fa;
             margin: 0;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
             background: #fff;
             padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             box-sizing: border-box;
         }
 
         h1 {
-            margin-bottom: 1rem;
-            color: #007BFF;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+            font-weight: 600;
         }
 
-        form {
+        .upload-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px dashed #d1d8e0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .file-input-wrapper {
+            position: relative;
             margin-bottom: 1rem;
         }
 
         input[type="file"] {
-            margin-bottom: 1rem;
-            padding: 10px;
-            width: calc(100% - 20px);
-            border: 1px solid #ccc;
+            display: none;
+        }
+
+        .file-upload-btn {
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            border: 1px solid #ced4da;
             border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .file-upload-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .selected-file {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-color);
         }
 
         button {
-            padding: 0.5rem 1rem;
-            background-color: #007BFF;
+            padding: 0.8rem 1.5rem;
+            font-size: 1rem;
+            background-color: var(--primary-color);
             color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 0.5rem;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color: var(--secondary-color);
+        }
+
+        button:disabled {
+            background-color: #a0a0a0;
+            cursor: not-allowed;
+        }
+
+        .btn-convert {
+            background-color: var(--success-color);
+        }
+
+        .btn-convert:hover {
+            background-color: #218838;
+        }
+
+        .btn-download {
+            background-color: var(--primary-color);
+        }
+
+        .btn-download:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn-reset {
+            background-color: var(--warning-color);
+            color: var(--dark-color);
+        }
+
+        .btn-reset:hover {
+            background-color: #e0a800;
         }
 
         #result {
-            margin-top: 1rem;
-            font-size: 1.2rem;
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 6px;
             text-align: left;
             white-space: pre-wrap;
-        }
-
-        #convert-btn, #download-btn {
-            margin-top: 1rem;
-            padding: 0.5rem 1rem;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
+            max-height: 300px;
+            overflow-y: auto;
             display: none;
-            transition: background-color 0.3s ease;
         }
 
-        #convert-btn:hover, #download-btn:hover {
-            background-color: #218838;
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .loader {
+            display: none;
+            margin: 1rem auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .alert {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .progress-container {
+            margin: 1rem 0;
+            display: none;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--primary-color);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status-text {
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--dark-color);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .speaker {
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        footer {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #6c757d;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Speech to Text</h1>
-        <form id="upload-form">
-            <label for="audio-file">Upload an audio file:</label>
-            <br><br>
-            <input type="file" id="audio-file" name="file" accept="audio/*" required>
-            <button type="submit">Upload</button>
-        </form>
-        <button id="convert-btn">Convert Audio to Text</button>
+        <h1>Speech to Text Converter</h1>
+        
+        <div id="alert-success" class="alert alert-success">
+            Operation completed successfully!
+        </div>
+        
+        <div id="alert-danger" class="alert alert-danger">
+            An error occurred. Please try again.
+        </div>
+        
+        <div class="upload-section">
+            <form id="upload-form">
+                <div class="file-input-wrapper">
+                    <label for="audio-file" class="file-upload-btn">Choose Audio File</label>
+                    <input type="file" id="audio-file" name="file" accept="audio/*" required>
+                </div>
+                <div id="selected-file" class="selected-file">No file selected</div>
+                <button type="submit" id="upload-btn">Upload</button>
+            </form>
+        </div>
+        
+        <div class="progress-container" id="progress-container">
+            <div class="progress-bar">
+                <div class="progress" id="progress"></div>
+            </div>
+            <div class="status-text" id="status-text">Processing...</div>
+        </div>
+        
+        <div class="loader" id="loader"></div>
+        
+        <div class="actions">
+            <button id="convert-btn" class="btn-convert hidden">Convert to Text</button>
+            <button id="download-btn" class="btn-download hidden">Download Transcript</button>
+            <button id="reset-btn" class="btn-reset hidden">Reset</button>
+        </div>
+        
         <div id="result"></div>
-        <a id="download-btn" download="transcription.txt">Download Text</a>
+        
+        <footer>
+            <p>Powered by AssemblyAI | Speech-to-Text Conversion Service</p>
+        </footer>
     </div>
+    
     <script>
-        document.getElementById('upload-form').addEventListener('submit', async (event) => {
+        // DOM Elements
+        const uploadForm = document.getElementById('upload-form');
+        const audioFileInput = document.getElementById('audio-file');
+        const selectedFileText = document.getElementById('selected-file');
+        const uploadBtn = document.getElementById('upload-btn');
+        const convertBtn = document.getElementById('convert-btn');
+        const downloadBtn = document.getElementById('download-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const resultContainer = document.getElementById('result');
+        const loader = document.getElementById('loader');
+        const alertSuccess = document.getElementById('alert-success');
+        const alertDanger = document.getElementById('alert-danger');
+        const progressContainer = document.getElementById('progress-container');
+        const progressBar = document.getElementById('progress');
+        const statusText = document.getElementById('status-text');
+        
+        // File UUID for tracking the current upload
+        let currentFileUUID = null;
+        
+        // Display the selected file name
+        audioFileInput.addEventListener('change', () => {
+            const file = audioFileInput.files[0];
+            if (file) {
+                selectedFileText.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
+            } else {
+                selectedFileText.textContent = 'No file selected';
+            }
+        });
+        
+        // Reset UI state
+        function resetUI() {
+            // Hide elements
+            convertBtn.classList.add('hidden');
+            downloadBtn.classList.add('hidden');
+            resetBtn.classList.add('hidden');
+            resultContainer.style.display = 'none';
+            loader.style.display = 'none';
+            progressContainer.style.display = 'none';
+            alertSuccess.style.display = 'none';
+            alertDanger.style.display = 'none';
+            
+            // Reset form
+            uploadForm.reset();
+            selectedFileText.textContent = 'No file selected';
+            resultContainer.textContent = '';
+            
+            // Reset progress bar
+            progressBar.style.width = '0%';
+            statusText.textContent = 'Processing...';
+            
+            // Reset file UUID
+            currentFileUUID = null;
+        }
+        
+        // Handle file upload
+        uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
+            
+            // Validate file
+            const file = audioFileInput.files[0];
+            if (!file) {
+                showAlert('Please select an audio file first.', 'danger');
+                return;
+            }
+            
+            // Start upload UI
+            uploadBtn.disabled = true;
+            showLoader();
+            hideAlerts();
+            
+            // Create FormData
             const formData = new FormData();
-            formData.append('file', document.getElementById('audio-file').files[0]);
-    
+            formData.append('file', file);
+            
             try {
+                // Upload file
                 const response = await fetch('/audio/upload', {
-    method: 'POST',
-    body: formData
-});
-    
+                    method: 'POST',
+                    body: formData
+                });
+                
                 if (!response.ok) {
-                    throw new Error('File upload failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'File upload failed');
                 }
-    
+                
                 const result = await response.json();
+                
                 if (result.message === "File uploaded successfully") {
-                    document.getElementById('convert-btn').style.display = 'block';
+                    // Save the file UUID for future operations
+                    currentFileUUID = result.file_id;
+                    
+                    // Show success notification and convert button
+                    showAlert('File uploaded successfully!', 'success');
+                    convertBtn.classList.remove('hidden');
+                    resetBtn.classList.remove('hidden');
+                    
+                    // Update UI state
+                    uploadBtn.disabled = false;
+                    hideLoader();
                 } else {
                     throw new Error('File upload success message not received');
                 }
             } catch (error) {
                 console.error('File upload error:', error);
-                // Handle error display or messaging here
+                showAlert(error.message || 'An error occurred during upload.', 'danger');
+                uploadBtn.disabled = false;
+                hideLoader();
             }
         });
-    
-        document.getElementById('convert-btn').addEventListener('click', async () => {
+        
+        // Handle audio conversion
+        convertBtn.addEventListener('click', async () => {
+            // Update UI
+            convertBtn.disabled = true;
+            showProgressBar();
+            hideAlerts();
+            
             try {
+                // Start the conversion
+                statusText.textContent = 'Converting speech to text...';
+                updateProgress(10);
+                
                 const response = await fetch('/audio/convert', {
                     method: 'POST'
                 });
-    
+                
+                updateProgress(50);
+                
                 if (!response.ok) {
-                    throw new Error('Conversion request failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Conversion request failed');
                 }
-    
+                
                 const result = await response.json();
-                if (result.text) {
-                    document.getElementById('result').innerText = result.text;
-                    document.getElementById('download-btn').style.display = 'block';
+                
+                if (result.message === "Transcription successful. Please download the transcript.") {
+                    // Update progress and status
+                    updateProgress(90);
+                    statusText.textContent = 'Transcription complete!';
+                    
+                    // Show download button and enable convert button again
+                    downloadBtn.classList.remove('hidden');
+                    convertBtn.disabled = false;
+                    
+                    // Hide progress and show success message
+                    setTimeout(() => {
+                        hideProgressBar();
+                        showAlert('Transcription completed successfully!', 'success');
+                    }, 500);
                 } else {
-                    throw new Error('Text conversion result not received');
+                    throw new Error('Transcription result not received');
                 }
             } catch (error) {
                 console.error('Conversion error:', error);
-                // Handle error display or messaging here
+                hideProgressBar();
+                showAlert(error.message || 'An error occurred during transcription.', 'danger');
+                convertBtn.disabled = false;
             }
         });
-    
-        document.getElementById('download-btn').addEventListener('click', async (event) => {
-            event.preventDefault();
+        
+        // Handle transcript download
+        downloadBtn.addEventListener('click', async () => {
             try {
+                downloadBtn.disabled = true;
+                showLoader();
+                hideAlerts();
+                
                 const response = await fetch('/audio/download');
-    
+                
                 if (!response.ok) {
-                    throw new Error('Download request failed');
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Download request failed');
                 }
-    
-                const blob = await response.blob();
+                
+                // Process the downloaded text
+                const text = await response.text();
+                
+                // Display the transcript in the result area
+                resultContainer.style.display = 'block';
+                
+                // Format the transcript with speaker highlighting
+                const formattedText = formatTranscript(text);
+                resultContainer.innerHTML = formattedText;
+                
+                // Create download link
+                const blob = new Blob([text], { type: 'text/plain' });
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
@@ -164,13 +470,100 @@
                 document.body.appendChild(a);
                 a.click();
                 window.URL.revokeObjectURL(url);
+                
+                // Update UI
+                downloadBtn.disabled = false;
+                hideLoader();
+                showAlert('Transcript downloaded successfully!', 'success');
+                
             } catch (error) {
                 console.error('Download error:', error);
-                // Handle error display or messaging here
+                showAlert(error.message || 'An error occurred during download.', 'danger');
+                downloadBtn.disabled = false;
+                hideLoader();
             }
         });
+        
+        // Reset button handler
+        resetBtn.addEventListener('click', async () => {
+            try {
+                // Call cleanup endpoint if we have a file
+                if (currentFileUUID) {
+                    resetBtn.disabled = true;
+                    showLoader();
+                    
+                    await fetch('/audio/cleanup', {
+                        method: 'DELETE'
+                    });
+                    
+                    hideLoader();
+                }
+                
+                // Reset UI
+                resetUI();
+                
+            } catch (error) {
+                console.error('Reset error:', error);
+                showAlert('Error during cleanup, but UI has been reset.', 'danger');
+                // Reset UI anyway
+                resetUI();
+            }
+        });
+        
+        // Utility functions
+        function showLoader() {
+            loader.style.display = 'block';
+        }
+        
+        function hideLoader() {
+            loader.style.display = 'none';
+        }
+        
+        function showProgressBar() {
+            progressContainer.style.display = 'block';
+            progressBar.style.width = '0%';
+        }
+        
+        function hideProgressBar() {
+            progressContainer.style.display = 'none';
+        }
+        
+        function updateProgress(percent) {
+            progressBar.style.width = `${percent}%`;
+        }
+        
+        function showAlert(message, type) {
+            const alert = type === 'success' ? alertSuccess : alertDanger;
+            alert.textContent = message;
+            alert.style.display = 'block';
+            
+            // Auto-hide after 5 seconds
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 5000);
+        }
+        
+        function hideAlerts() {
+            alertSuccess.style.display = 'none';
+            alertDanger.style.display = 'none';
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes < 1024) {
+                return bytes + ' bytes';
+            } else if (bytes < 1048576) {
+                return (bytes / 1024).toFixed(1) + ' KB';
+            } else {
+                return (bytes / 1048576).toFixed(1) + ' MB';
+            }
+        }
+        
+        function formatTranscript(text) {
+            // Format the transcript with speaker highlighting
+            return text.replace(/Speaker (\d+): (.*?)(?=$|Speaker \d+:)/gs, (match, speakerNum, content) => {
+                return `<p><span class="speaker">Speaker ${speakerNum}:</span> ${content.trim()}</p>`;
+            });
+        }
     </script>
-    
-
 </body>
 </html>
