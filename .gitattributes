@@ -1,0 +1,13 @@
+# Mark HTML, CSS, and JS files as non-detectable for language statistics
+*.html linguist-detectable=false
+*.css linguist-detectable=false
+*.js linguist-detectable=false
+
+# Mark Python files as detectable
+*.py linguist-detectable=true
+
+# Exclude static files from language statistics
+app/static/* linguist-vendored=true
+
+# Explicitly mark Python as the primary language
+*.py linguist-language=Python 
