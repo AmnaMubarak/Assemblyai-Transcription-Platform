@@ -3,6 +3,3 @@ venv/
 
 # Environment variables
 .env
-
-# Test folder
-#test
