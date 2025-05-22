@@ -33,7 +33,7 @@
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             text-align: center;
-            max-width: 600px;
+            max-width: 800px;
             width: 100%;
             box-sizing: border-box;
         }
@@ -42,6 +42,37 @@
             margin-bottom: 1.5rem;
             color: var(--primary-color);
             font-weight: 600;
+        }
+
+        .tab-container {
+            margin-bottom: 2rem;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #dee2e6;
+            margin-bottom: 1.5rem;
+        }
+
+        .tab {
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .tab.active {
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
         }
 
         .upload-section {
@@ -222,6 +253,80 @@
             color: var(--primary-color);
         }
 
+        .file-list {
+            margin: 1rem 0;
+            text-align: left;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 0.5rem;
+        }
+
+        .file-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-item:last-child {
+            border-bottom: none;
+        }
+
+        .file-status {
+            font-size: 0.8rem;
+            padding: 0.2rem 0.5rem;
+            border-radius: 3px;
+            background-color: #e9ecef;
+        }
+
+        .status-uploaded {
+            background-color: #cce5ff;
+            color: #004085;
+        }
+
+        .status-transcribed {
+            background-color: #d4edda;
+            color: #155724;
+        }
+
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+
+        .batch-summary {
+            margin-top: 1rem;
+            text-align: left;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            padding: 1rem;
+        }
+
+        .batch-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
         footer {
             margin-top: 2rem;
             font-size: 0.9rem;
@@ -241,33 +346,95 @@
             An error occurred. Please try again.
         </div>
         
-        <div class="upload-section">
-            <form id="upload-form">
-                <div class="file-input-wrapper">
-                    <label for="audio-file" class="file-upload-btn">Choose Audio File</label>
-                    <input type="file" id="audio-file" name="file" accept="audio/*" required>
-                </div>
-                <div id="selected-file" class="selected-file">No file selected</div>
-                <button type="submit" id="upload-btn">Upload</button>
-            </form>
-        </div>
-        
-        <div class="progress-container" id="progress-container">
-            <div class="progress-bar">
-                <div class="progress" id="progress"></div>
+        <div class="tab-container">
+            <div class="tabs">
+                <div class="tab active" data-tab="single">Single File</div>
+                <div class="tab" data-tab="batch">Batch Processing</div>
             </div>
-            <div class="status-text" id="status-text">Processing...</div>
+            
+            <!-- Single File Tab -->
+            <div class="tab-content active" id="single-tab">
+                <div class="upload-section">
+                    <form id="upload-form">
+                        <div class="file-input-wrapper">
+                            <label for="audio-file" class="file-upload-btn">Choose Audio File</label>
+                            <input type="file" id="audio-file" name="file" accept="audio/*" required>
+                        </div>
+                        <div id="selected-file" class="selected-file">No file selected</div>
+                        <button type="submit" id="upload-btn">Upload</button>
+                    </form>
+                </div>
+                
+                <div class="progress-container" id="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="status-text" id="status-text">Processing...</div>
+                </div>
+                
+                <div class="loader" id="loader"></div>
+                
+                <div class="actions">
+                    <button id="convert-btn" class="btn-convert hidden">Convert to Text</button>
+                    <button id="download-btn" class="btn-download hidden">Download Transcript</button>
+                    <button id="reset-btn" class="btn-reset hidden">Reset</button>
+                </div>
+                
+                <div id="result"></div>
+            </div>
+            
+            <!-- Batch Processing Tab -->
+            <div class="tab-content" id="batch-tab">
+                <div class="upload-section">
+                    <form id="batch-upload-form">
+                        <div class="file-input-wrapper">
+                            <label for="batch-files" class="file-upload-btn">Choose Audio Files</label>
+                            <input type="file" id="batch-files" name="files" accept="audio/*" multiple required>
+                        </div>
+                        <div id="batch-selected-files" class="selected-file">No files selected</div>
+                        <button type="submit" id="batch-upload-btn">Upload Files</button>
+                    </form>
+                </div>
+                
+                <div class="progress-container" id="batch-progress-container">
+                    <div class="progress-bar">
+                        <div class="progress" id="batch-progress"></div>
+                    </div>
+                    <div class="status-text" id="batch-status-text">Processing...</div>
+                </div>
+                
+                <div class="loader" id="batch-loader"></div>
+                
+                <div class="batch-summary hidden" id="batch-summary">
+                    <h3>Batch Summary</h3>
+                    <div class="batch-stats">
+                        <div class="stat-item">
+                            <div class="stat-value" id="batch-total">0</div>
+                            <div class="stat-label">Total Files</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="batch-processed">0</div>
+                            <div class="stat-label">Processed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" id="batch-failed">0</div>
+                            <div class="stat-label">Failed</div>
+                        </div>
+                    </div>
+                    
+                    <h4>Files</h4>
+                    <div class="file-list" id="batch-file-list">
+                        <!-- File items will be added here -->
+                    </div>
+                </div>
+                
+                <div class="actions">
+                    <button id="batch-convert-btn" class="btn-convert hidden">Convert All Files</button>
+                    <button id="batch-download-btn" class="btn-download hidden">Download All Transcripts</button>
+                    <button id="batch-reset-btn" class="btn-reset hidden">Reset</button>
+                </div>
+            </div>
         </div>
-        
-        <div class="loader" id="loader"></div>
-        
-        <div class="actions">
-            <button id="convert-btn" class="btn-convert hidden">Convert to Text</button>
-            <button id="download-btn" class="btn-download hidden">Download Transcript</button>
-            <button id="reset-btn" class="btn-reset hidden">Reset</button>
-        </div>
-        
-        <div id="result"></div>
         
         <footer>
             <p>Powered by AssemblyAI | Speech-to-Text Conversion Service</p>
@@ -275,7 +442,7 @@
     </div>
     
     <script>
-        // DOM Elements
+        // DOM Elements - Single File
         const uploadForm = document.getElementById('upload-form');
         const audioFileInput = document.getElementById('audio-file');
         const selectedFileText = document.getElementById('selected-file');
@@ -291,10 +458,45 @@
         const progressBar = document.getElementById('progress');
         const statusText = document.getElementById('status-text');
         
+        // DOM Elements - Batch Processing
+        const batchUploadForm = document.getElementById('batch-upload-form');
+        const batchFilesInput = document.getElementById('batch-files');
+        const batchSelectedFiles = document.getElementById('batch-selected-files');
+        const batchUploadBtn = document.getElementById('batch-upload-btn');
+        const batchConvertBtn = document.getElementById('batch-convert-btn');
+        const batchDownloadBtn = document.getElementById('batch-download-btn');
+        const batchResetBtn = document.getElementById('batch-reset-btn');
+        const batchLoader = document.getElementById('batch-loader');
+        const batchProgressContainer = document.getElementById('batch-progress-container');
+        const batchProgress = document.getElementById('batch-progress');
+        const batchStatusText = document.getElementById('batch-status-text');
+        const batchSummary = document.getElementById('batch-summary');
+        const batchTotal = document.getElementById('batch-total');
+        const batchProcessed = document.getElementById('batch-processed');
+        const batchFailed = document.getElementById('batch-failed');
+        const batchFileList = document.getElementById('batch-file-list');
+        
+        // Tab switching
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab and corresponding content
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
+            });
+        });
+        
         // File UUID for tracking the current upload
         let currentFileUUID = null;
+        let currentBatchID = null;
         
-        // Display the selected file name
+        // Display the selected file name for single file
         audioFileInput.addEventListener('change', () => {
             const file = audioFileInput.files[0];
             if (file) {
@@ -304,7 +506,27 @@
             }
         });
         
-        // Reset UI state
+        // Display selected files for batch processing
+        batchFilesInput.addEventListener('change', () => {
+            const files = batchFilesInput.files;
+            if (files.length > 0) {
+                if (files.length > 5) {
+                    showAlert('Maximum 5 files can be selected at once', 'danger');
+                    batchFilesInput.value = '';
+                    batchSelectedFiles.textContent = 'No files selected';
+                    return;
+                }
+                
+                batchSelectedFiles.textContent = `Selected ${files.length} file(s):`;
+                for (let i = 0; i < files.length; i++) {
+                    batchSelectedFiles.textContent += `\n- ${files[i].name} (${formatFileSize(files[i].size)})`;
+                }
+            } else {
+                batchSelectedFiles.textContent = 'No files selected';
+            }
+        });
+        
+        // Reset UI state for single file
         function resetUI() {
             // Hide elements
             convertBtn.classList.add('hidden');
@@ -329,7 +551,35 @@
             currentFileUUID = null;
         }
         
-        // Handle file upload
+        // Reset UI state for batch processing
+        function resetBatchUI() {
+            // Hide elements
+            batchConvertBtn.classList.add('hidden');
+            batchDownloadBtn.classList.add('hidden');
+            batchResetBtn.classList.add('hidden');
+            batchSummary.classList.add('hidden');
+            batchLoader.style.display = 'none';
+            batchProgressContainer.style.display = 'none';
+            alertSuccess.style.display = 'none';
+            alertDanger.style.display = 'none';
+            
+            // Reset form and stats
+            batchUploadForm.reset();
+            batchSelectedFiles.textContent = 'No files selected';
+            batchFileList.innerHTML = '';
+            batchTotal.textContent = '0';
+            batchProcessed.textContent = '0';
+            batchFailed.textContent = '0';
+            
+            // Reset progress bar
+            batchProgress.style.width = '0%';
+            batchStatusText.textContent = 'Processing...';
+            
+            // Reset batch ID
+            currentBatchID = null;
+        }
+        
+        // Handle file upload for single file
         uploadForm.addEventListener('submit', async (event) => {
             event.preventDefault();
             
@@ -386,7 +636,117 @@
             }
         });
         
-        // Handle audio conversion
+        // Handle batch file upload
+        batchUploadForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            // Validate files
+            const files = batchFilesInput.files;
+            if (!files || files.length === 0) {
+                showAlert('Please select at least one audio file.', 'danger');
+                return;
+            }
+            
+            // Start upload UI
+            batchUploadBtn.disabled = true;
+            showBatchLoader();
+            hideAlerts();
+            
+            // Create FormData with multiple files
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append('files', files[i]);
+            }
+            
+            try {
+                // Upload files
+                const response = await fetch('/audio/batch-upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Batch upload failed');
+                }
+                
+                const result = await response.json();
+                
+                if (result.message && result.batch_id) {
+                    // Save the batch ID for future operations
+                    currentBatchID = result.batch_id;
+                    
+                    // Show success notification and batch controls
+                    showAlert(`Batch uploaded successfully with ${result.files_count} files!`, 'success');
+                    batchConvertBtn.classList.remove('hidden');
+                    batchResetBtn.classList.remove('hidden');
+                    
+                    // Update UI state
+                    batchUploadBtn.disabled = false;
+                    hideBatchLoader();
+                    
+                    // Update batch summary
+                    batchTotal.textContent = result.files_count;
+                    batchSummary.classList.remove('hidden');
+                    
+                    // Get batch status
+                    await refreshBatchStatus();
+                } else {
+                    throw new Error('Batch upload success message not received');
+                }
+            } catch (error) {
+                console.error('Batch upload error:', error);
+                showAlert(error.message || 'An error occurred during batch upload.', 'danger');
+                batchUploadBtn.disabled = false;
+                hideBatchLoader();
+            }
+        });
+        
+        // Refresh batch status
+        async function refreshBatchStatus() {
+            if (!currentBatchID) return;
+            
+            try {
+                const response = await fetch('/audio/batch-status');
+                
+                if (!response.ok) {
+                    console.error('Failed to get batch status');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                // Update status counts
+                batchTotal.textContent = result.total_files;
+                batchProcessed.textContent = result.status_counts.transcribed;
+                batchFailed.textContent = result.status_counts.error;
+                
+                // Update file list
+                batchFileList.innerHTML = '';
+                result.files.forEach(file => {
+                    const statusClass = `status-${file.status}`;
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-name">${file.original_name}</div>
+                        <div class="file-status ${statusClass}">${file.status}</div>
+                    `;
+                    
+                    batchFileList.appendChild(fileItem);
+                });
+                
+                // Show download button if at least one file is transcribed
+                if (result.status_counts.transcribed > 0) {
+                    batchDownloadBtn.classList.remove('hidden');
+                }
+                
+            } catch (error) {
+                console.error('Error refreshing batch status:', error);
+            }
+        }
+        
+        // Handle audio conversion for single file
         convertBtn.addEventListener('click', async () => {
             // Update UI
             convertBtn.disabled = true;
@@ -436,7 +796,64 @@
             }
         });
         
-        // Handle transcript download
+        // Handle batch conversion
+        batchConvertBtn.addEventListener('click', async () => {
+            // Update UI
+            batchConvertBtn.disabled = true;
+            showBatchProgressBar();
+            hideAlerts();
+            
+            try {
+                // Start the batch conversion
+                batchStatusText.textContent = 'Converting all files...';
+                updateBatchProgress(10);
+                
+                const response = await fetch('/audio/batch-convert', {
+                    method: 'POST'
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Batch conversion request failed');
+                }
+                
+                // Update progress as we go
+                updateBatchProgress(30);
+                batchStatusText.textContent = 'Processing files...';
+                
+                // Wait for processing to complete
+                const result = await response.json();
+                
+                // Update batch progress
+                updateBatchProgress(90);
+                batchStatusText.textContent = 'Batch processing complete!';
+                
+                // Update batch status
+                await refreshBatchStatus();
+                
+                // Enable download button if any files were processed
+                if (result.processed_files > 0) {
+                    batchDownloadBtn.classList.remove('hidden');
+                }
+                
+                // Re-enable convert button
+                batchConvertBtn.disabled = false;
+                
+                // Hide progress and show success message
+                setTimeout(() => {
+                    hideBatchProgressBar();
+                    showAlert(`Batch processing completed! ${result.processed_files} files processed, ${result.failed_files} failed.`, 'success');
+                }, 500);
+                
+            } catch (error) {
+                console.error('Batch conversion error:', error);
+                hideBatchProgressBar();
+                showAlert(error.message || 'An error occurred during batch processing.', 'danger');
+                batchConvertBtn.disabled = false;
+            }
+        });
+        
+        // Handle transcript download for single file
         downloadBtn.addEventListener('click', async () => {
             try {
                 downloadBtn.disabled = true;
@@ -484,7 +901,45 @@
             }
         });
         
-        // Reset button handler
+        // Handle batch download
+        batchDownloadBtn.addEventListener('click', async () => {
+            try {
+                batchDownloadBtn.disabled = true;
+                showBatchLoader();
+                hideAlerts();
+                
+                const response = await fetch('/audio/batch-download');
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || 'Batch download request failed');
+                }
+                
+                // Get the ZIP file and trigger download
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = `transcriptions_batch.zip`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                
+                // Update UI
+                batchDownloadBtn.disabled = false;
+                hideBatchLoader();
+                showAlert('Batch transcriptions downloaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Batch download error:', error);
+                showAlert(error.message || 'An error occurred during batch download.', 'danger');
+                batchDownloadBtn.disabled = false;
+                hideBatchLoader();
+            }
+        });
+        
+        // Reset button handler for single file
         resetBtn.addEventListener('click', async () => {
             try {
                 // Call cleanup endpoint if we have a file
@@ -510,6 +965,32 @@
             }
         });
         
+        // Reset button handler for batch
+        batchResetBtn.addEventListener('click', async () => {
+            try {
+                // Call batch cleanup endpoint if we have a batch
+                if (currentBatchID) {
+                    batchResetBtn.disabled = true;
+                    showBatchLoader();
+                    
+                    await fetch('/audio/batch-cleanup', {
+                        method: 'DELETE'
+                    });
+                    
+                    hideBatchLoader();
+                }
+                
+                // Reset UI
+                resetBatchUI();
+                
+            } catch (error) {
+                console.error('Batch reset error:', error);
+                showAlert('Error during batch cleanup, but UI has been reset.', 'danger');
+                // Reset UI anyway
+                resetBatchUI();
+            }
+        });
+        
         // Utility functions
         function showLoader() {
             loader.style.display = 'block';
@@ -517,6 +998,14 @@
         
         function hideLoader() {
             loader.style.display = 'none';
+        }
+        
+        function showBatchLoader() {
+            batchLoader.style.display = 'block';
+        }
+        
+        function hideBatchLoader() {
+            batchLoader.style.display = 'none';
         }
         
         function showProgressBar() {
@@ -528,8 +1017,21 @@
             progressContainer.style.display = 'none';
         }
         
+        function showBatchProgressBar() {
+            batchProgressContainer.style.display = 'block';
+            batchProgress.style.width = '0%';
+        }
+        
+        function hideBatchProgressBar() {
+            batchProgressContainer.style.display = 'none';
+        }
+        
         function updateProgress(percent) {
             progressBar.style.width = `${percent}%`;
+        }
+        
+        function updateBatchProgress(percent) {
+            batchProgress.style.width = `${percent}%`;
         }
         
         function showAlert(message, type) {
